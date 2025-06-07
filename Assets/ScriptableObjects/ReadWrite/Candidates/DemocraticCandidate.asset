@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c71ddd539a9ce8c41ae902698d856d9c, type: 3}
+  m_Name: DemocraticCandidate
+  m_EditorClassIdentifier: 
+  _name: 
+  _radicalismPercent: 10
+  _nameRecognitionPercent: 10
+  _coveragePercent: 10
+  _passionPercent: 10
+  _speechGivingPercent: 10
+  _neutralPullPercent: 10
+  _youthPercent: 10
+  _middleAgePercent: 10
+  _elderlyPercent: 10
+  _urbanPercent: 10
+  _ruralPercent: 10
+  _workingClassPercent: 10
+  _middleClassPercent: 10
+  _richPercent: 10
+  _nonPoCPercent: 10
+  _poCPercent: 10

@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c71ddd539a9ce8c41ae902698d856d9c, type: 3}
+  m_Name: KamalaHarris
+  m_EditorClassIdentifier: 
+  _name: Kamala Harris
+  _radicalismPercent: 7
+  _nameRecognitionPercent: 19
+  _coveragePercent: 17
+  _passionPercent: 11
+  _speechGivingPercent: 11
+  _neutralPullPercent: 9
+  _youthPercent: 14
+  _middleAgePercent: 8
+  _elderlyPercent: 10
+  _urbanPercent: 18
+  _ruralPercent: 3
+  _workingClassPercent: 10
+  _middleClassPercent: 15
+  _richPercent: 6
+  _nonPoCPercent: 9
+  _poCPercent: 15
