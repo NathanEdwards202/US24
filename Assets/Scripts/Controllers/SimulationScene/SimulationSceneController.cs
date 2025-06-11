@@ -1,4 +1,5 @@
 using Candidates;
+using Controllers.MainScene;
 using Controllers.MainScene.ResultsTracker;
 using Controllers.SimulationScene.Simulation;
 using Controllers.SimulationScene.UI;
@@ -481,6 +482,8 @@ namespace Controllers.SimulationScene
             {
                 StateData.UpdateElectoralVotes();
             }
+
+            MainMenuSetupControls.OnSimulationFinish();
 
             SceneManager.LoadScene(0);
         }

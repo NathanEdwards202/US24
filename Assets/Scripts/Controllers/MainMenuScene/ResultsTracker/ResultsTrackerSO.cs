@@ -14,7 +14,16 @@ namespace Controllers.MainScene.ResultsTracker
         public void StartSelf()
         {
             _results = new();
-            OnNewResult(2024, "Kamala Harris", "Donald Trump", 226, 312);
+            OnNewResult(1988, "Michael S. Dukakis", "George Bush", 111, 426);
+            OnNewResult(1992, "William J. Clinton", "George Bush", 370, 168);
+            OnNewResult(1996, "William J. Clinton", "Robert Dole", 379, 159);
+            OnNewResult(2000, "Albert Gore, Jr.", "George W. Bush", 266, 271);
+            OnNewResult(2004, "John F. Kerry", "George W. Bush", 251, 286);
+            OnNewResult(2008, "Barack H. Obama", "John S. McCain", 365, 173);
+            OnNewResult(2012, "Barack H. Obama", "W. Mitt Romney", 332, 206);
+            OnNewResult(2016, "Hillary R. Clinton", "Donald J. Trump", 227, 304);
+            OnNewResult(2020, "Joseph R. Biden", "Donald J. Trump", 306, 232);
+            OnNewResult(2024, "Kamala D. Harris", "Donald J. Trump", 226, 312);
         }
 
         public void OnNewResult(int yr, string dn, string rn, int dev, int rev)

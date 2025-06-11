@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71ddd539a9ce8c41ae902698d856d9c, type: 3}
   m_Name: KamalaHarris
   m_EditorClassIdentifier: 
-  _name: Kamala Harris
+  _name: Kamala D. Harris
   _radicalismPercent: 7
   _nameRecognitionPercent: 19
   _coveragePercent: 17

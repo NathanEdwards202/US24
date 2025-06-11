@@ -3,7 +3,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,7 +13,9 @@ namespace Data
     {
         static Random r = new();
         static bool _setup = false;
+        public static ConcurrentDictionary<string, StateDataStruct> _oldData = new();
         public static ConcurrentDictionary<string, StateDataStruct> _currentData = new();
+        public static ConcurrentDictionary<string, StateDataStruct> _changesInData = new(); 
 
         static int totalVotes = 538;
         static int minVotes = 3;
@@ -38,6 +39,7 @@ namespace Data
 
         public static void UpdateSelf(List<State> states)
         {
+            _oldData = new(_currentData);
             ConcurrentDictionary<string, StateDataStruct> newData = new();
 
             // Stuff based on states
@@ -193,6 +195,35 @@ namespace Data
             });
 
             _currentData = newData;
+        }
+
+        static void UpdateChangesInData()
+        {
+            foreach (string s in _currentData.Keys)
+            {
+                StateDataStruct oldData = _oldData[s];
+                StateDataStruct newData = _currentData[s];
+
+                StateDataStruct dataChange = new(
+                        newData._electoralVotes - oldData._electoralVotes,
+                        newData._demReg - oldData._demReg,
+                        newData._repReg - oldData._repReg,
+                        newData._pop - oldData._pop,
+                        newData._regPopPercent - oldData._regPopPercent,
+                        newData._youth - oldData._youth,
+                        newData._lowerM - oldData._lowerM,
+                        newData._upperM - oldData._upperM,
+                        newData._eld - oldData._eld,
+                        newData._urb - oldData._urb,
+                        newData._mid - oldData._mid,
+                        newData._rich - oldData._rich,
+                        newData._nonPoC - oldData._nonPoC,
+                        newData._demMod - oldData._demMod,
+                        newData._repMod - oldData._repMod
+                    );
+
+                _changesInData[s] = dataChange;
+            }
         }
 
         public static void UpdateElectoralVotes()
