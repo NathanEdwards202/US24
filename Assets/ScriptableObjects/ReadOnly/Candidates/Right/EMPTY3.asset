@@ -13,19 +13,19 @@ MonoBehaviour:
   m_Name: EMPTY3
   m_EditorClassIdentifier: 
   _name: EMPTY
-  _radicalismPercent: 19
-  _nameRecognitionPercent: 16
-  _coveragePercent: 16
-  _passionPercent: 8
-  _speechGivingPercent: 7
-  _neutralPullPercent: 5
-  _youthPercent: 6
-  _middleAgePercent: 11
-  _elderlyPercent: 7
-  _urbanPercent: 6
-  _ruralPercent: 16
-  _workingClassPercent: 7
-  _middleClassPercent: 8
-  _richPercent: 16
-  _nonPoCPercent: 14
-  _poCPercent: 5
+  _radicalismPercent: 1
+  _nameRecognitionPercent: 1
+  _coveragePercent: 1
+  _passionPercent: 1
+  _speechGivingPercent: 1
+  _neutralPullPercent: 1
+  _youthPercent: 1
+  _middleAgePercent: 1
+  _elderlyPercent: 1
+  _urbanPercent: 1
+  _ruralPercent: 1
+  _workingClassPercent: 1
+  _middleClassPercent: 1
+  _richPercent: 1
+  _nonPoCPercent: 1
+  _poCPercent: 1

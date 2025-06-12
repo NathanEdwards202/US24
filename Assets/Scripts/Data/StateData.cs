@@ -195,6 +195,8 @@ namespace Data
             });
 
             _currentData = newData;
+
+            UpdateChangesInData();
         }
 
         static void UpdateChangesInData()

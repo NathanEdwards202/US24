@@ -12,20 +12,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71ddd539a9ce8c41ae902698d856d9c, type: 3}
   m_Name: DemocraticCandidate
   m_EditorClassIdentifier: 
-  _name: 
-  _radicalismPercent: 10
-  _nameRecognitionPercent: 10
-  _coveragePercent: 10
-  _passionPercent: 10
-  _speechGivingPercent: 10
-  _neutralPullPercent: 10
-  _youthPercent: 10
-  _middleAgePercent: 10
-  _elderlyPercent: 10
-  _urbanPercent: 10
-  _ruralPercent: 10
-  _workingClassPercent: 10
-  _middleClassPercent: 10
-  _richPercent: 10
-  _nonPoCPercent: 10
-  _poCPercent: 10
+  _name: EMPTY
+  _radicalismPercent: 1
+  _nameRecognitionPercent: 1
+  _coveragePercent: 1
+  _passionPercent: 1
+  _speechGivingPercent: 1
+  _neutralPullPercent: 1
+  _youthPercent: 1
+  _middleAgePercent: 1
+  _elderlyPercent: 1
+  _urbanPercent: 1
+  _ruralPercent: 1
+  _workingClassPercent: 1
+  _middleClassPercent: 1
+  _richPercent: 1
+  _nonPoCPercent: 1
+  _poCPercent: 1
