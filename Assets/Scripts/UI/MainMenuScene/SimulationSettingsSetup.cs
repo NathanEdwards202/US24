@@ -48,8 +48,8 @@ public class SimulationSettingsSetup : MonoBehaviour
     void SetToDefaults()
     {
         _simSpeedSlider.value = 1f;
-        _voteVarianceSlider.value = 5f;
-        _erraticnessSlider.value = 10f;
+        _voteVarianceSlider.value = 10f;
+        _erraticnessSlider.value = 5f;
 
         SetTexts(0f);
     }

@@ -12,8 +12,8 @@ namespace UI.MainMenuScene
         [SerializeField] ResultsTrackerSO _resultsTracker;
         [SerializeField] TextMeshProUGUI[] _resultsText;
 
-        [SerializeField] GameObject _nextScreen;
-        [SerializeField] Button _forwardButton;
+        [SerializeField] GameObject _nextScreen, _lastScreen;
+        [SerializeField] Button _forwardButton, _backButton;
 
         static bool _firstRun = true;
 
@@ -26,12 +26,14 @@ namespace UI.MainMenuScene
             }
             SetText();
 
-            _forwardButton.onClick.AddListener(NextScreen);
+            _forwardButton.onClick.AddListener(() => ChangeScreen(_nextScreen));
+            _backButton.onClick.AddListener(() => ChangeScreen(_lastScreen));
         }
 
         private void OnDestroy()
         {
             _forwardButton.onClick.RemoveAllListeners();
+            _backButton.onClick.RemoveAllListeners();
         }
 
         void SetText()
@@ -42,9 +44,9 @@ namespace UI.MainMenuScene
             }
         }
 
-        void NextScreen()
+        void ChangeScreen(GameObject newScreen)
         {
-            _nextScreen.SetActive(true);
+            newScreen.SetActive(true);
             gameObject.SetActive(false);
         }
     }

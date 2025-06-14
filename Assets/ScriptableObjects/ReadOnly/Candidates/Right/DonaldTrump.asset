@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c71ddd539a9ce8c41ae902698d856d9c, type: 3}
   m_Name: DonaldTrump
   m_EditorClassIdentifier: 
-  _name: Donald Trump
+  _name: Donald J. Trump
   _radicalismPercent: 19
   _nameRecognitionPercent: 20
   _coveragePercent: 20
