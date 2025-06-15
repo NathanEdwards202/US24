@@ -31,9 +31,10 @@ namespace UI.MainMenuScene
 
             List<TMP_Dropdown.OptionData> options = new()
             {
-                new("Overall State Data")
+                new("Overall State Data"),
+                new("Nation-Wide")
             };
-            foreach (string stateName in StateData._currentData.Keys)
+            foreach (string stateName in StateData._currentData.Keys.OrderBy(x => x).ToList())
             {
                 options.Add(new(stateName));
             }
@@ -270,7 +271,7 @@ namespace UI.MainMenuScene
             for(int i =  0; i < _topTwentyStatDisplays.Length/2; i++)
             {
 
-                rawValueDisplay = data[i].Item5 == false ? data[i].Item3.ToString("N0") : data[i].Item3.ToString("N2") + "%";
+                rawValueDisplay = data[i].Item5 == false ? data[i].Item3.ToString("N0") :data[i].Item3.ToString("N2") + "%";
                 percentageChangePreface = data[i].Item4 >= 0 ? "+" : "";
 
                 _topTwentyStatDisplays[i].text = $"{data[i].Item1}'s {data[i].Item2}: {rawValueDisplay} ({percentageChangePreface}{(data[i].Item4 * 100):N2}%)";
@@ -298,9 +299,20 @@ namespace UI.MainMenuScene
         {
             List<(string, double, double, bool)> data = new(); // Comparison point, raw number, % change, is displayed as a percentage
 
-            StateDataStruct oldData = StateData._oldData[stateName];
-            StateDataStruct newData = StateData._currentData[stateName];
-            StateDataStruct dataChange = StateData._changesInData[stateName];
+            StateDataStruct oldData;
+            StateDataStruct newData;
+            StateDataStruct dataChange;
+
+            if (stateName != "Nation-Wide")
+            {
+                oldData = StateData._oldData[stateName];
+                newData = StateData._currentData[stateName];
+                dataChange = StateData._changesInData[stateName];
+            }
+            else
+            {
+                SetAveragesForCountryWideAnalysis(out oldData, out newData, out dataChange);
+            }
 
             data.Add(
                     new(
@@ -387,7 +399,7 @@ namespace UI.MainMenuScene
             data.Add(
                 new(
                     "% Population Rural",
-                    1 - newData._urb * 100f,
+                    (1 - newData._urb) * 100f,
                     ((1 - newData._urb) - (1 - oldData._urb)) / (1 - oldData._urb),
                     true
                     )
@@ -436,17 +448,119 @@ namespace UI.MainMenuScene
             _stateNameDisplay.text = stateName;
             _stateNameDisplay.ForceMeshUpdate();
 
+            // Item 1 Comparison point,
+            // Item 2 raw number,
+            // Item 3 % change,
+            // Item 4 is displayed as a percentage
+
             // 16 points of data.
             string rawValueDisplay, percentageChangePreface;
 
             for (int i = 0; i < _stateStatTextDisplays.Length; i++)
             {
-                rawValueDisplay = data[i].Item4 == false ? data[i].Item3.ToString("N0") : data[i].Item3.ToString("N2") + "%";
+                rawValueDisplay = data[i].Item4 == false ? data[i].Item2.ToString("N0") : data[i].Item2.ToString("N2") + "%";
                 percentageChangePreface = data[i].Item3 >= 0 ? "+" : "";
 
                 _stateStatTextDisplays[i].text = $"{stateName}'s {data[i].Item1}: {rawValueDisplay} ({percentageChangePreface}{(data[i].Item3 * 100):N2}%)";
                 _stateStatTextDisplays[i].ForceMeshUpdate();
             }
+        }
+
+        void SetAveragesForCountryWideAnalysis(out StateDataStruct oldData, out StateDataStruct newData, out StateDataStruct dataChange)
+        {
+            oldData = new();
+            newData = new();
+
+            // Set Old
+            foreach(StateDataStruct data in StateData._oldData.Values)
+            {
+                oldData._electoralVotes += data._electoralVotes;
+                oldData._pop += data._pop;
+
+                oldData._demReg += data._demReg * data._pop;
+                oldData._repReg += data._demReg * data._pop;
+                oldData._regPopPercent += data._regPopPercent * data._pop;
+                oldData._youth += data._youth * data._pop;
+                oldData._lowerM += data._lowerM * data._pop;
+                oldData._upperM += data._upperM * data._pop;
+                oldData._eld += data._eld * data._pop;
+                oldData._urb += data._urb * data._pop;
+                oldData._mid += data._mid * data._pop;
+                oldData._rich += data._rich * data._pop;
+                oldData._nonPoC += data._nonPoC * data._pop;
+                oldData._demMod += data._demMod * data._pop;
+                oldData._repMod += data._repMod * data._pop;
+            }
+
+            oldData._demReg /= oldData._pop;
+            oldData._repReg /= oldData._pop;
+            oldData._regPopPercent /= oldData._pop;
+            oldData._youth /= oldData._pop;
+            oldData._lowerM /= oldData._pop;
+            oldData._upperM /= oldData._pop;
+            oldData._eld /= oldData._pop;
+            oldData._urb /= oldData._pop;
+            oldData._mid /= oldData._pop;
+            oldData._rich /= oldData._pop;
+            oldData._nonPoC /= oldData._pop;
+            oldData._demMod /= oldData._pop;
+            oldData._repMod /= oldData._pop;
+
+
+            // Set New
+            foreach (StateDataStruct data in StateData._currentData.Values)
+            {
+                newData._electoralVotes += data._electoralVotes;
+                newData._pop += data._pop;
+
+                newData._demReg += data._demReg * data._pop;
+                newData._repReg += data._repReg * data._pop;
+                newData._regPopPercent += data._regPopPercent * data._pop;
+                newData._youth += data._youth * data._pop;
+                newData._lowerM += data._lowerM * data._pop;
+                newData._upperM += data._upperM * data._pop;
+                newData._eld += data._eld * data._pop;
+                newData._urb += data._urb * data._pop;
+                newData._mid += data._mid * data._pop;
+                newData._rich += data._rich * data._pop;
+                newData._nonPoC += data._nonPoC * data._pop;
+                newData._demMod += data._demMod * data._pop;
+                newData._repMod += data._repMod * data._pop;
+            }
+
+            newData._demReg /= newData._pop;
+            newData._repReg /= newData._pop;
+            newData._regPopPercent /= newData._pop;
+            newData._youth /= newData._pop;
+            newData._lowerM /= newData._pop;
+            newData._upperM /= newData._pop;
+            newData._eld /= newData._pop;
+            newData._urb /= newData._pop;
+            newData._mid /= newData._pop;
+            newData._rich /= newData._pop;
+            newData._nonPoC /= newData._pop;
+            newData._demMod /= newData._pop;
+            newData._repMod /= newData._pop;
+
+            // Set Change
+
+            dataChange = new(
+                    newData._electoralVotes - oldData._electoralVotes,
+                    newData._demReg - oldData._demReg,
+                    newData._repReg - oldData._repReg,
+                    newData._pop - oldData._pop,
+                    newData._regPopPercent - oldData._regPopPercent,
+                    newData._youth - oldData._youth,
+                    newData._lowerM - oldData._lowerM,
+                    newData._upperM - oldData._upperM,
+                    newData._eld - oldData._eld,
+                    newData._urb - oldData._urb,
+                    newData._mid - oldData._mid,
+                    newData._rich - oldData._rich,
+                    newData._nonPoC - oldData._nonPoC,
+                    newData._demMod - oldData._demMod,
+                    newData._repMod - oldData._repMod
+                );
         }
     }
 }

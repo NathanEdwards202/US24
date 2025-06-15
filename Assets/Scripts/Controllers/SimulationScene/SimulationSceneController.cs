@@ -476,12 +476,9 @@ namespace Controllers.SimulationScene
 
         void OnReturnToMainMenu()
         {
-            StateData.UpdateSelf(_states);
+            bool updateEVs = (_simulationSettings.year + 8) % 12 == 0;
+            StateData.UpdateSelf(_states, updateEVs);
             _simulationSettings.year += 4;
-            if((_simulationSettings.year + 4) % 12 == 0) 
-            {
-                StateData.UpdateElectoralVotes();
-            }
 
             MainMenuSetupControls.OnSimulationFinish();
 

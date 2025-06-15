@@ -37,10 +37,15 @@ namespace Data
             _setup = true;
         }
 
-        public static void UpdateSelf(List<State> states)
+        public static void UpdateSelf(List<State> states, bool updateEVs)
         {
             _oldData = new(_currentData);
             ConcurrentDictionary<string, StateDataStruct> newData = new();
+
+            if (updateEVs)
+            {
+                UpdateElectoralVotes();
+            }
 
             // Stuff based on states
             Parallel.ForEach(states, s =>
@@ -48,7 +53,7 @@ namespace Data
                 StateDataStruct newStruct = new StateDataStruct();
 
                 string stateName = s.Name;
-                int newEVs = s._electoralVotes;
+                int newEVs = _currentData[stateName]._electoralVotes;
                 float demLean = (float)s.GetDemLean();
                 float newDemMod;
                 float newRepMod;
