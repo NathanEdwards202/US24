@@ -1075,6 +1075,16 @@ namespace States
             return _currentDemPercentage - _currentRepPercentage;
         }
 
+        public float GetCurrentDemPercentage()
+        {
+            return _currentDemPercentage;
+        }
+
+        public float GetCurrentRepPercentage()
+        {
+            return _currentRepPercentage;
+        }
+
         public Image GetImage()
         {
             return _image;

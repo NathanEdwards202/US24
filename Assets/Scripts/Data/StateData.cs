@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Unity.Collections;
+using UnityEngine.UIElements;
 
 
 namespace Data
@@ -20,14 +22,18 @@ namespace Data
         static int totalVotes = 538;
         static int minVotes = 3;
 
-        static float registrationPull = 0.75f;
-        static float youthPull = 0.2f;
-        static float lowerMiddlePull = 0.25f;
-        static float upperMiddlePull = 0.3f;
-        static float urbanPull = 0.8f;
-        static float middlePull = 0.34f;
-        static float richPull = 0.06f;
+        static float partisanRegistrationPull = 0.375f;
+        static float overallRegistrationPull = 0.75f;
+        static float youthPull = 0.24f;
+        static float lowerMiddlePull = 0.28f;
+        static float upperMiddlePull = 0.34f;
+        static float urbanPull = 0.84f;
+        static float middlePull = 0.4f;
+        static float richPull = 0.075f;
         static float nonPocPull = 0.5f;
+
+        static float immigrationPullFactor = 0f;
+        static float emigrationPullFactor = 0f;
 
 
         public static void InitialSetup()
@@ -37,6 +43,14 @@ namespace Data
             _setup = true;
         }
 
+
+        /* In series:
+         *      Setup initial data
+         *      Deal with EVs
+         *      Deal with im/e -migration
+         *  In parallel:
+         *      Everything else
+        */
         public static void UpdateSelf(List<State> states, bool updateEVs)
         {
             _oldData = new(_currentData);
@@ -47,9 +61,28 @@ namespace Data
                 UpdateElectoralVotes();
             }
 
-            // Stuff based on states
+            ConcurrentDictionary<string, float> amountMovingAwayFromEachState = new();
+            ConcurrentDictionary<string, float> weightingMovingToEachState = new();
+            float totalAmountMoving = 0;
+            float totalWeighting = 0;
+
+            foreach(State state in states)
+            {
+                StateDataStruct thisState = _currentData[state.Name];
+
+                amountMovingAwayFromEachState[state.Name] = (float)thisState._pop / 200 * (thisState._immigrationPull + 1) * 4f;
+                weightingMovingToEachState[state.Name] = (float)(Math.Pow((double)thisState._electoralVotes, 0.25) * (thisState._emigrationPull + 1));
+            }
+            foreach(string stateName in amountMovingAwayFromEachState.Keys)
+            {
+                totalAmountMoving += amountMovingAwayFromEachState[stateName];
+                totalWeighting += weightingMovingToEachState[stateName];
+            }
+
+
             Parallel.ForEach(states, s =>
             {
+                // Setup new data
                 StateDataStruct newStruct = new StateDataStruct();
 
                 string stateName = s.Name;
@@ -60,7 +93,7 @@ namespace Data
                 float newDemReg = _currentData[s.Name]._demReg;
                 float newRepReg = _currentData[s.Name]._repReg;
 
-                int newPop = _currentData[s.Name]._pop;
+                int newPop = _currentData[s.Name]._pop - (int)amountMovingAwayFromEachState[s.Name];
 
                 float newRegistation = _currentData[s.Name]._regPopPercent;
                 float newYouth = _currentData[s.Name]._youth;
@@ -71,16 +104,41 @@ namespace Data
                 float newRich = _currentData[s.Name]._rich;
                 float newNonPoC = _currentData[s.Name]._nonPoC;
 
-                newDemReg = (0.32f + (float)s.GetDemLean() + newDemReg * 11) / 13;
-                newRepReg = (0.32f + (float)s.GetDemLean() * -1 + newRepReg * 11) / 13;
+                float newImmigrationPull = _currentData[s.Name]._immigrationPull;
+                float newEmigrationPull = _currentData[s.Name]._emigrationPull;
+                float newProgressFactor = _currentData[s.Name]._progressFactor;
 
+                newDemMod = _currentData[s.Name]._demMod;
+                newRepMod = _currentData[s.Name]._repMod;
+
+                /// Update population
+                // Pop growth
                 for (int i = 0; i < 4; i++)
                 {
-                    newDemReg += GenerateSkewedRandomFloat(-0.02f, 0.02f, 1.32f);
-                    newRepReg += GenerateSkewedRandomFloat(-0.02f, 0.02f, 1.32f);
+                    newPop = (int)MathF.Round(newPop * (GenerateSkewedRandomFloat(97f, 103.5f, 1.25f) / 100f));
                 }
-                
 
+                // Immigration / Emigration
+                newPop += (int)(totalAmountMoving * (weightingMovingToEachState[s.Name] / totalWeighting));
+
+
+                /// Update Party-Registrations
+                // Update based on state result -- Should come first
+                newDemReg += (s.GetCurrentDemPercentage() - newDemReg) / GenerateSkewedRandomFloat(10f, 20f, 1.25f);
+                newRepReg += ((s.GetCurrentRepPercentage() * -1) - newRepReg) / GenerateSkewedRandomFloat(10f, 20f, 1.25f);
+
+                // Registration pull
+                newDemReg += (partisanRegistrationPull - newDemReg) / 100f;
+                newRepReg += (partisanRegistrationPull - newRepReg) / 100f;
+
+                // Random factor
+                for (int i = 0; i < 4; i++)
+                {
+                    newDemReg += newDemReg * GenerateRandomFloat(-0.02f, 0.02f);
+                    newRepReg += newRepReg * GenerateRandomFloat(-0.02f, 0.02f);
+                }
+
+                // Correction for the amount being too high
                 while (newRepReg + newDemReg >= 0.95f)
                 {
                     newRepReg /= 1.01f;
@@ -88,34 +146,31 @@ namespace Data
                 }
 
 
-                for (int i = 0; i < 4; i++)
+                /// Update Demographics
+                // Random factor
+                for(int i = 0; i < 4; i++)
                 {
-                    newPop = (int)MathF.Round(newPop * GenerateRandomFloat(0.9925f - (newEVs - 3) / 8000f, 1.0325f - (newEVs - 3) / 8000f));
+                    newRegistation *= GenerateRandomFloat(0.99f, 1.01f);
+                    newYouth *= GenerateRandomFloat(0.99f, 1.01f);
+                    newLower *= GenerateRandomFloat(0.99f, 1.01f);
+                    newUpper *= GenerateRandomFloat(0.99f, 1.01f);
+                    newUrban *= GenerateRandomFloat(0.99f, 1.01f);
+                    newMiddle *= GenerateRandomFloat(0.99f, 1.01f);
+                    newRich *= GenerateRandomFloat(0.99f, 1.01f);
+                    newNonPoC *= GenerateRandomFloat(0.99f, 1.01f);
                 }
 
-                float addition = -60;
-                float additionTwo = 16;
+                // Pull factors
+                newYouth += (youthPull - newYouth) / 64f;
+                newRegistation += (overallRegistrationPull - newRegistation) / 64f;
+                newLower += (lowerMiddlePull - newLower) / 64f;
+                newUpper += (upperMiddlePull - newUpper) / 64f;
+                newUrban += (urbanPull - newUrban) / 64f;
+                newMiddle += (middlePull - newMiddle) / 64f;
+                newRich += (richPull - newRich) / 64f;
+                newNonPoC += (nonPocPull - newNonPoC) / 64f;
 
-                newRegistation *= 68;
-                newRegistation += registrationPull;
-                newRegistation += GenerateRandomFloat(0, 1) * 2;
-                newRegistation /= 71;
-
-                newYouth *= 88 + addition;
-                newYouth += youthPull;
-                newYouth += GenerateRandomFloat(0, 1) * 4;
-                newYouth /= 93 + addition;
-
-                newLower *= 88 + addition;
-                newLower += lowerMiddlePull;
-                newLower += GenerateRandomFloat(0, 1) * 3;
-                newLower /= 92 + addition;
-
-                newUpper *= 88 + addition;
-                newUpper += upperMiddlePull;
-                newUpper += GenerateRandomFloat(0, 1) * 2;
-                newUpper /= 91 + addition;
-
+                // Corrections
                 while (newYouth + newLower + newUpper > 0.95f)
                 {
                     newYouth /= 1.01f;
@@ -123,40 +178,32 @@ namespace Data
                     newUpper /= 1.01f;
                 }
 
-                newUrban *= 88 + addition;
-                newUrban += urbanPull;
-                newUrban += GenerateRandomFloat(0, 1) * 3;
-                newUrban /= 92 + addition;
-
-                newMiddle *= 88 + addition;
-                newMiddle += middlePull;
-                newMiddle += GenerateRandomFloat(0, 1) * 9;
-                newMiddle /= 98 + addition;
-
-                newRich *= 88 + addition;
-                newRich += richPull;
-                newRich += GenerateRandomFloat(0, 1) * 5;
-                newRich /= 94 + addition;
-
                 while (newMiddle + newRich > 0.95f)
                 {
                     newMiddle /= 1.01f;
                     newRich /= 1.01f;
                 }
 
-                newNonPoC *= 88 + addition + additionTwo;
-                newNonPoC += nonPocPull;
-                newNonPoC += GenerateRandomFloat(0, 1) * 5;
-                newNonPoC /= 94 + addition + additionTwo;
-
                 while (newNonPoC > 0.95f)
                 {
                     newNonPoC /= 1.01f;
                 }
 
-                newDemMod = _currentData[s.Name]._demMod;
-                newRepMod = _currentData[s.Name]._repMod;
 
+                /// Update immigration / emigration
+                // Random Factor
+                for (int i = 0; i < 4; i++)
+                {
+                    newProgressFactor += GenerateSkewedRandomFloat(-0.1f, 0.1f, 1.25f);
+                    newProgressFactor = Math.Clamp(newProgressFactor, -1f, 1f);
+                    newImmigrationPull += GenerateRandomFloat(-0.025f + newProgressFactor / 100f, 0.025f + newProgressFactor / 100f);
+                }
+                // Pull Factor
+                newImmigrationPull += (immigrationPullFactor - newImmigrationPull) / 64f;
+                newEmigrationPull += (emigrationPullFactor - newEmigrationPull) / 64f;
+
+
+                /// Lower modifiers
                 float change = GenerateSkewedRandomFloat(-0.032f, 0.048f, 2f);
                 if (newDemMod > 0)
                 {
@@ -180,11 +227,13 @@ namespace Data
                 newDemMod /= 1.1f;
                 newRepMod /= 1.1f;
 
+
+                /// Set new struct and clamp values
                 newStruct._electoralVotes = newEVs;
                 newStruct._pop = newPop;
                 newStruct._regPopPercent = Math.Clamp(newRegistation, 0.02f, 0.98f);
-                newStruct._demReg = Math.Clamp(newDemReg, 0.02f, 0.78f);
-                newStruct._repReg = Math.Clamp(newRepReg, 0.02f, 0.78f);
+                newStruct._demReg = Math.Clamp(newDemReg, 0.02f, 0.88f);
+                newStruct._repReg = Math.Clamp(newRepReg, 0.02f, 0.88f);
                 newStruct._youth = Math.Clamp(newYouth, 0.02f, 0.98f);
                 newStruct._lowerM = Math.Clamp(newLower, 0.02f, 0.98f);
                 newStruct._upperM = Math.Clamp(newUpper, 0.02f, 0.98f);
@@ -193,6 +242,8 @@ namespace Data
                 newStruct._mid = Math.Clamp(newMiddle, 0.02f, 0.98f);
                 newStruct._rich = Math.Clamp(newRich, 0.02f, 0.98f);
                 newStruct._nonPoC = Math.Clamp(newNonPoC, 0.02f, 0.98f);
+                newStruct._immigrationPull = Math.Clamp(newImmigrationPull, -1f, 1f);
+                newStruct._emigrationPull = Math.Clamp(newEmigrationPull, -1f, 1f);
                 newStruct._demMod = Math.Clamp(newDemMod, 0f, 0.98f);
                 newStruct._repMod = Math.Clamp(newRepMod, 0f, 0.98f);
 
@@ -1201,12 +1252,14 @@ namespace Data
         public float _youth, _lowerM, _upperM, _eld;
         public float _urb, _mid, _rich;
         public float _nonPoC;
+        public float _immigrationPull, _emigrationPull;
+        public float _progressFactor; // Used to determine rate of immi/emi-gration pull increase/decrease
 
         public float _demMod;
         public float _repMod;
 
         public StateDataStruct(int ev, float demReg, float repReg, int pop, float regPopPercent, float youth, float lowerM, float upperM, float eld,
-        float urb, float mid, float rich, float nonPoC, float demMod, float repMod)
+        float urb, float mid, float rich, float nonPoC, float demMod, float repMod, float immigrationPull = 0, float emigrationPull = 0, float progressFactor = 0)
         {
             _electoralVotes = ev;
             _demReg = demReg;
@@ -1223,6 +1276,10 @@ namespace Data
             _nonPoC = nonPoC;
             _demMod = demMod;
             _repMod = repMod;
+
+            _immigrationPull = immigrationPull;
+            _emigrationPull = emigrationPull;
+            _progressFactor = progressFactor;
         }
     }
 }

@@ -478,7 +478,7 @@ namespace UI.MainMenuScene
                 oldData._pop += data._pop;
 
                 oldData._demReg += data._demReg * data._pop;
-                oldData._repReg += data._demReg * data._pop;
+                oldData._repReg += data._repReg * data._pop;
                 oldData._regPopPercent += data._regPopPercent * data._pop;
                 oldData._youth += data._youth * data._pop;
                 oldData._lowerM += data._lowerM * data._pop;

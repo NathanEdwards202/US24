@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 054e142ab735529419de7852148e9437, type: 3}
   m_Name: SimulationSettings
   m_EditorClassIdentifier: 
-  _simulationSpeed: 1
+  _simulationSpeed: 1800
   _voteVariance: 10
   _simulationErraticness: 5
   _bypassPolling: 0
